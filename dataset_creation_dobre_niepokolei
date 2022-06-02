@@ -1,0 +1,159 @@
+from read_data import *
+import numpy as np
+
+sciezka = "/Users/nataliarobak/Desktop/Różne/Dynamore/DynaMOBS_EMA_raw_warsaw.csv"
+dane = read_data(sciezka)
+
+
+def srednie(dataset: dict) -> dict:
+    srednie_itemow = {}
+    # os_week to cala linijka typu 15023w2: {...}
+    for os_week in dataset.values():
+        subject_id = os_week["subject_id"]
+        identyfikator = int(subject_id.split("w")[0].replace('"', ''))
+        week = int(subject_id.split("w")[1].replace('"', ''))
+        print(identyfikator, week, "w{:d}mood".format(week))
+        array_cheerful = np.array(os_week["mood"]["mood1_cheerful"])
+        array_irritated = np.array(os_week["mood"]["mood2_irritated"])
+        array_anxious = np.array(os_week["mood"]["mood3_anxious"])
+        array_satisfied = np.array(os_week["mood"]["mood4_satisfied"])
+        array_insecure = np.array(os_week["mood"]["mood5_insecure"])
+        array_relaxed = np.array(os_week["mood"]["mood6_relaxed"])
+        array_sad = np.array(os_week["mood"]["mood7_sad"])
+        array_stressed = np.array(os_week["mood"]["mood8_stressed"])
+        array_restless = np.array(os_week["mood"]["mood9_restless"])
+        array_tired = np.array(os_week["mood"]["mood10_tired"])
+        array_atease = np.array(os_week["mood"]["mood11_atease"])
+        array_thoughtsout = np.array(os_week["mood"]["mood12_thoughtsout"])
+        array_concentrate = np.array(os_week["mood"]["mood13_concentrate"])
+        # print(array_stressed)
+        if identyfikator in srednie_itemow:
+            srednie_itemow[identyfikator].update({
+                "w{:d}mood1".format(week): np.nanmean(array_cheerful),
+                "w{:d}mood2".format(week): np.nanmean(array_irritated),
+                "w{:d}mood3".format(week): np.nanmean(array_anxious),
+                "w{:d}mood4".format(week): np.nanmean(array_satisfied),
+                "w{:d}mood5".format(week): np.nanmean(array_insecure),
+                "w{:d}mood6".format(week): np.nanmean(array_relaxed),
+                "w{:d}mood7".format(week): np.nanmean(array_sad),
+                "w{:d}mood8".format(week): np.nanmean(array_stressed),
+                "w{:d}mood9".format(week): np.nanmean(array_restless),
+                "w{:d}mood10".format(week): np.nanmean(array_tired),
+                "w{:d}mood11".format(week): np.nanmean(array_atease),
+                "w{:d}mood12".format(week): np.nanmean(array_thoughtsout),
+                "w{:d}mood13".format(week): np.nanmean(array_concentrate),
+                "w{:d}PA".format(week): (np.nanmean(array_cheerful) + np.nanmean(array_satisfied) + np.nanmean(array_relaxed) + np.nanmean(array_atease))/4,
+                "w{:d}NA".format(week): (np.nanmean(array_irritated) + np.nanmean(array_anxious) + np.nanmean(array_insecure) + np.nanmean(array_sad) + np.nanmean(array_stressed))/5
+            })
+        else:
+            srednie_itemow[identyfikator] = {
+                "w{:d}mood1".format(week): np.nanmean(array_cheerful),
+                "w{:d}mood2".format(week): np.nanmean(array_irritated),
+                "w{:d}mood3".format(week): np.nanmean(array_anxious),
+                "w{:d}mood4".format(week): np.nanmean(array_satisfied),
+                "w{:d}mood5".format(week): np.nanmean(array_insecure),
+                "w{:d}mood6".format(week): np.nanmean(array_relaxed),
+                "w{:d}mood7".format(week): np.nanmean(array_sad),
+                "w{:d}mood8".format(week): np.nanmean(array_stressed),
+                "w{:d}mood9".format(week): np.nanmean(array_restless),
+                "w{:d}mood10".format(week): np.nanmean(array_tired),
+                "w{:d}mood11".format(week): np.nanmean(array_atease),
+                "w{:d}mood12".format(week): np.nanmean(array_thoughtsout),
+                "w{:d}mood13".format(week): np.nanmean(array_concentrate),
+                "w{:d}PA".format(week): (np.nanmean(array_cheerful) + np.nanmean(array_satisfied) + np.nanmean(
+                    array_relaxed) + np.nanmean(array_atease)) / 4,
+                "w{:d}NA".format(week): (np.nanmean(array_irritated) + np.nanmean(array_anxious) + np.nanmean(
+                    array_insecure) + np.nanmean(array_sad) + np.nanmean(array_stressed)) / 5
+            }
+
+            # srednie_itemow[identyfikator].update(**d1)
+        # print(srednie_itemow[identyfikator])
+    return srednie_itemow
+
+
+def srednie_wrong(dataset: dict) -> dict:
+    # wszyscy = []
+    # for osoba in dataset.values():
+    #     wszyscy.append(osoba)
+    # wszyscy = pd.DataFrame(wszyscy)
+    # # tutaj mam dataframe zawierajacy wszystko
+
+    slownik_slownikow = {}
+    for os in dataset.values():
+
+        subj = os["subject_id"]
+        slownik_slownikow[subj] = {}
+        id = int(os["subject_id"].split("w")[0].replace('"', ''))
+        week = int(os["subject_id"].split("w")[1])
+        # if id not in slownik_slownikow:
+        slownik_slownikow[subj]["ID"] = id
+        # if week not in slownik_slownikow:
+        slownik_slownikow[subj]["week"] = week
+
+        slownik_slownikow[subj]["mean_cheerful"] = 0
+        slownik_slownikow[subj]["mean_irritated"] = 0
+        slownik_slownikow[subj]["mean_anxious"] = 0
+        slownik_slownikow[subj]["mean_satisfied"] = 0
+        slownik_slownikow[subj]["mean_insecure"] = 0
+        slownik_slownikow[subj]["mean_relaxed"] = 0
+        slownik_slownikow[subj]["mean_sad"] = 0
+        slownik_slownikow[subj]["mean_stressed"] = 0
+        slownik_slownikow[subj]["mean_restless"] = 0
+        slownik_slownikow[subj]["mean_tired"] = 0
+        slownik_slownikow[subj]["mean_atease"] = 0
+        slownik_slownikow[subj]["mean_thoughtsout"] = 0
+        slownik_slownikow[subj]["mean_concentrate"] = 0
+
+        mean_cheerful, mean_irritated, mean_anxious, mean_satisfied, mean_insecure, mean_relaxed, mean_sad, mean_stressed, mean_restless, mean_tired, mean_atease, mean_thoughtsout, mean_concentrate = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+        # for w in os["week_nr"]:
+        for mooditem in os["mood"].values():
+            # if dataset["mood"] == "mood1_cheerful":
+            mean_cheerful += sum(os["mood"]["mood1_cheerful"]) / len(os["mood"]["mood1_cheerful"])
+            # elif dataset["mood"] == "mood2_irritated":
+            mean_irritated += sum(os["mood"]["mood2_irritated"]) / len(os["mood"]["mood2_irritated"])
+            # elif dataset["mood"] =="mood3_anxious":
+            mean_anxious += sum(os["mood"]["mood3_anxious"]) / len(os["mood"]["mood3_anxious"])
+            # elif dataset["mood"] =="mood4_satisfied":
+            mean_satisfied += sum(os["mood"]["mood4_satisfied"]) / len(os["mood"]["mood4_satisfied"])
+            # elif dataset["mood"] =="mood5_insecure":
+            mean_insecure += sum(os["mood"]["mood5_insecure"]) / len(os["mood"]["mood5_insecure"])
+            # elif dataset["mood"] =="mood6_relaxed":
+            mean_relaxed += sum(os["mood"]["mood6_relaxed"]) / len(os["mood"]["mood6_relaxed"])
+            # elif dataset["mood"] =="mood7_sad":
+            mean_sad += sum(os["mood"]["mood7_sad"]) / len(os["mood"]["mood7_sad"])
+            # elif dataset["mood"] =="mood8_stressed":
+            mean_stressed += sum(os["mood"]["mood8_stressed"]) / len(os["mood"]["mood8_stressed"])
+            # elif dataset["mood"] =="mood9_restless":
+            mean_restless += sum(os["mood"]["mood9_restless"]) / len(os["mood"]["mood9_restless"])
+            # elif dataset["mood"] =="mood10_tired":
+            mean_tired += sum(os["mood"]["mood10_tired"]) / len(os["mood"]["mood10_tired"])
+            # elif dataset["mood"] =="mood11_atease":
+            mean_atease += sum(os["mood"]["mood11_atease"]) / len(os["mood"]["mood11_atease"])
+            # elif dataset["mood"] =="mood12_thoughtsout":
+            mean_thoughtsout += sum(os["mood"]["mood12_thoughtsout"]) / len(os["mood"]["mood12_thoughtsout"])
+            # elif dataset["mood"] =="mood13_concentrate":
+            mean_concentrate += sum(os["mood"]["mood13_concentrate"]) / len(os["mood"]["mood13_concentrate"])
+
+            slownik_slownikow[subj]["mean_cheerful"] =(mean_cheerful)
+            slownik_slownikow[subj]["mean_irritated"] =(mean_irritated)
+            slownik_slownikow[subj]["mean_anxious"] =(mean_anxious)
+            slownik_slownikow[subj]["mean_satisfied"] =(mean_satisfied)
+            slownik_slownikow[subj]["mean_insecure"] =(mean_insecure)
+            slownik_slownikow[subj]["mean_relaxed"] =(mean_relaxed)
+            slownik_slownikow[subj]["mean_sad"] =(mean_sad)
+            slownik_slownikow[subj]["mean_stressed"] =(mean_stressed)
+            slownik_slownikow[subj]["mean_restless"] =(mean_restless)
+            slownik_slownikow[subj]["mean_tired"] =(mean_tired)
+            slownik_slownikow[subj]["mean_atease"] =(mean_atease)
+            slownik_slownikow[subj]["mean_thoughtsout"] =(mean_thoughtsout)
+            slownik_slownikow[subj]["mean_concentrate"] =(mean_concentrate)
+
+
+    # dla kazdego subj (15000wN) licze srednia z mooditem1, 2 itd
+    # zapisuje kazd
+
+
+    # dla kazdego tygodnia danej osoby slownik typu:
+    # {string subj, int nr_tyg, int mean_cheerful, mean_irritated, mean_anxious, mean_satisifed, ...}
+    return slownik_slownikow
