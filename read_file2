@@ -1,0 +1,119 @@
+import numpy as np
+import pandas as pd
+from numpy import nan
+from math import isnan
+
+def read_data(source_filename: str) -> dict:
+    # pweek;"obs";"participant";"week";"day";"beep";"value.timeNotification";"value.time";"value.timeCompleted";"ESM_DynaMORE_moodItem1";"ESM_DynaMORE_moodItem2";"ESM_DynaMORE_moodItem3";"ESM_DynaMORE_moodItem4";"ESM_DynaMORE_moodItem5";"ESM_DynaMORE_moodItem6";"ESM_DynaMORE_moodItem7";"ESM_DynaMORE_moodItem8";"ESM_DynaMORE_moodItem9";"ESM_DynaMORE_moodItem10";"ESM_DynaMORE_moodItem11";"ESM_DynaMORE_moodItem12";"ESM_DynaMORE_moodItem13";"ESM_DynaMORE_virtualSocialItem1";"ESM_DynaMORE_virtualSocialItem1branchAloneItem1";"ESM_DynaMORE_virtualSocialItem1branchAloneItem2";"ESM_DynaMORE_virtualSocialItem1branchAloneItem3";"ESM_DynaMORE_socialItem1";"ESM_DynaMORE_socialItem1branchAloneItem1";"ESM_DynaMORE_socialItem1branchAloneItem2";"ESM_DynaMORE_socialItem1branchAloneItem3";"ESM_DynaMORE_physicalContextAndActivityItem1";"ESM_DynaMORE_physicalContextAndActivityItem2";"ESM_DynaMORE_physicalContextAndActivityItem3";"ESM_DynaMORE_physicalContextAndActivityItem1BranchItem1";"ESM_DynaMORE_eventAppraisalItem1";"ESM_DynaMORE_eventAppraisalItem2";"ESM_DynaMORE_substanceUseItem1";"ESM_DynaMORE_anticipationOfPleasureItem1";"ESM_DynaMORE_anticipationOfPleasureItem2";"ESM_DynaMORE_virtualSocialItem1branchNotAloneItem1";"ESM_DynaMORE_virtualSocialItem1branchNotAloneItem2";"ESM_DynaMORE_virtualSocialItem1branchNotAloneItem3";"ESM_DynaMORE_virtualSocialItem1branchNotAloneItem4";"ESM_DynaMORE_socialItem1branchNotAloneItem1";"ESM_DynaMORE_socialItem1branchNotAloneItem2";"ESM_DynaMORE_socialItem1branchNotAloneItem3";"ESM_DynaMORE_socialItem1branchNotAloneItem4";"ESM_DynaMORE_substanceUseItem1branchYes"
+    with open(source_filename, 'r', errors="ignore", encoding="utf-8") as plik:
+        DynaMOBS_EMA_raw_warsaw = plik.readlines()[1:]
+    przetworzone_dane = {}
+    for wiersz in DynaMOBS_EMA_raw_warsaw:
+        wiersz = wiersz.strip().split(';')
+        for pozycja in range(len(wiersz)):
+            if wiersz[pozycja] == "NA":
+                wiersz[pozycja] = nan
+            else:
+                if pozycja == 1 or pozycja == 4 or pozycja == 5 or (pozycja > 8 and pozycja < 23):
+                    wiersz[pozycja] = int(wiersz[pozycja])
+                    # print(wiersz[pozycja])
+                elif pozycja == 2 or pozycja == 3:
+                    wiersz[pozycja] = int(wiersz[pozycja].replace('"', ''))
+                    # print(wiersz[pozycja])
+                # else:
+                #     wiersz[pozycja] = float(wiersz[pozycja])
+        # Grupowanie
+        identyfikator = wiersz[2] - 15000
+        if identyfikator in przetworzone_dane:
+            # przetworzone_dane[identyfikator]["subject_id"].append(wiersz[0])
+            # przetworzone_dane[identyfikator]["observation_nr"].append(wiersz[1])
+            # przetworzone_dane[identyfikator]["participant"].append(wiersz[2])
+            # przetworzone_dane[identyfikator]["week_nr"].append(wiersz[3])
+
+            # przetworzone_dane[identyfikator]["day"].append(wiersz[4])
+            # przetworzone_dane[identyfikator]["beep"].append(wiersz[5])
+
+            # value
+            # przetworzone_dane[identyfikator]["value"]["value_time_notification%"].append(0)
+            # przetworzone_dane[identyfikator]["value"]["value_time"].append(0)
+            # przetworzone_dane[identyfikator]["value"]["value_time_completed"].append(0)
+            # mood
+            przetworzone_dane[identyfikator]["mood"]["mood1_cheerful"].append(wiersz[9])
+            przetworzone_dane[identyfikator]["mood"]["mood2_irritated"].append(wiersz[10])
+            przetworzone_dane[identyfikator]["mood"]["mood3_anxious"].append(wiersz[11])
+            przetworzone_dane[identyfikator]["mood"]["mood4_satisfied"].append(wiersz[12])
+            przetworzone_dane[identyfikator]["mood"]["mood5_insecure"].append(wiersz[13])
+            przetworzone_dane[identyfikator]["mood"]["mood6_relaxed"].append(wiersz[14])
+            przetworzone_dane[identyfikator]["mood"]["mood7_sad"].append(wiersz[15])
+            przetworzone_dane[identyfikator]["mood"]["mood8_stressed"].append(wiersz[16])
+            przetworzone_dane[identyfikator]["mood"]["mood9_restless"].append(wiersz[17])
+            przetworzone_dane[identyfikator]["mood"]["mood10_tired"].append(wiersz[18])
+            przetworzone_dane[identyfikator]["mood"]["mood11_atease"].append(wiersz[19])
+            przetworzone_dane[identyfikator]["mood"]["mood12_thoughtsout"].append(wiersz[20])
+            przetworzone_dane[identyfikator]["mood"]["mood13_concentrate"].append(wiersz[21])
+            # virtual social
+            # przetworzone_dane[identyfikator]["virtual_social"]["v_social1"].append(wiersz[22])
+            # przetworzone_dane[identyfikator]["virtual_social"]["v_social2"].append(wiersz[23])
+            # przetworzone_dane[identyfikator]["virtual_social"]["v_social3"].append(wiersz[24])
+            # przetworzone_dane[identyfikator]["virtual_social"]["v_social4"].append(wiersz[25])
+            # social
+            # przetworzone_dane[identyfikator]["social"]["social1"].append(wiersz[26])
+            # przetworzone_dane[identyfikator]["social"]["social2"].append(wiersz[27])
+            # przetworzone_dane[identyfikator]["social"]["social3"].append(wiersz[28])
+            # przetworzone_dane[identyfikator]["social"]["social4"].append(wiersz[29])
+        else:
+            # pweek;"obs";"participant";"week";"day";"beep";"value.timeNotification";"value.time";"value.timeCompleted";"ESM_DynaMORE_moodItem1";
+            # "ESM_DynaMORE_moodItem2";"ESM_DynaMORE_moodItem3";"ESM_DynaMORE_moodItem4";"ESM_DynaMORE_moodItem5";"ESM_DynaMORE_moodItem6";
+            # "ESM_DynaMORE_moodItem7";"ESM_DynaMORE_moodItem8";"ESM_DynaMORE_moodItem9";"ESM_DynaMORE_moodItem10";"ESM_DynaMORE_moodItem11";
+            # "ESM_DynaMORE_moodItem12";"ESM_DynaMORE_moodItem13";"ESM_DynaMORE_virtualSocialItem1";"ESM_DynaMORE_virtualSocialItem1branchAloneItem1";
+            # "ESM_DynaMORE_virtualSocialItem1branchAloneItem2";"ESM_DynaMORE_virtualSocialItem1branchAloneItem3";"ESM_DynaMORE_socialItem1";
+            # "ESM_DynaMORE_socialItem1branchAloneItem1";"ESM_DynaMORE_socialItem1branchAloneItem2";"ESM_DynaMORE_socialItem1branchAloneItem3";
+            # "ESM_DynaMORE_physicalContextAndActivityItem1";"ESM_DynaMORE_physicalContextAndActivityItem2";"ESM_DynaMORE_physicalContextAndActivityItem3";
+            # "ESM_DynaMORE_physicalContextAndActivityItem1BranchItem1";"ESM_DynaMORE_eventAppraisalItem1";"ESM_DynaMORE_eventAppraisalItem2";
+            # "ESM_DynaMORE_substanceUseItem1";"ESM_DynaMORE_anticipationOfPleasureItem1";"ESM_DynaMORE_anticipationOfPleasureItem2";
+            # "ESM_DynaMORE_virtualSocialItem1branchNotAloneItem1";"ESM_DynaMORE_virtualSocialItem1branchNotAloneItem2";
+            # "ESM_DynaMORE_virtualSocialItem1branchNotAloneItem3";"ESM_DynaMORE_virtualSocialItem1branchNotAloneItem4";"ESM_DynaMORE_socialItem1branchNotAloneItem1"
+            # ;"ESM_DynaMORE_socialItem1branchNotAloneItem2";"ESM_DynaMORE_socialItem1branchNotAloneItem3";"ESM_DynaMORE_socialItem1branchNotAloneItem4";
+            # "ESM_DynaMORE_substanceUseItem1branchYes"
+            przetworzone_dane[identyfikator] = {
+                "subject_id": wiersz[0].replace('"', ''),
+                "observation_nr": wiersz[1],
+                "participant": wiersz[2],
+                "week_nr": wiersz[3],
+                # "day": [wiersz[4]],
+                # "beep": [wiersz[5]],
+                # "value": {"value_time_notification%": [wiersz[6]],
+                #            "value_time": [wiersz[7]],
+                #            "value_time_completed": [wiersz[8]]},
+                "mood": {"mood1_cheerful": [wiersz[9]],
+                            "mood2_irritated": [wiersz[10]],
+                            "mood3_anxious": [wiersz[11]],
+                            "mood4_satisfied": [wiersz[12]],
+                            "mood5_insecure": [wiersz[13]],
+                            "mood6_relaxed": [wiersz[14]],
+                            "mood7_sad": [wiersz[15]],
+                            "mood8_stressed": [wiersz[16]],
+                            "mood9_restless": [wiersz[17]],
+                            "mood10_tired": [wiersz[18]],
+                            "mood11_atease": [wiersz[19]],
+                            "mood12_thoughtsout": [wiersz[20]],
+                            "mood13_concentrate": [wiersz[21]]},
+                # "virtual_social": {"v_social1": [wiersz[22]],
+                #            "v_social2": [wiersz[23]],
+                #            "v_social3": [wiersz[24]],
+                #            "v_social4": [wiersz[25]],},
+                # "social": {"social1": [wiersz[26]],
+                #             "social2": [wiersz[27]],
+                #             "social3": [wiersz[28]],
+                #             "social4": [wiersz[29]]},
+                # "last": [wiersz[47]]
+
+            }
+            #print(przetworzone_dane)
+    # functional
+    clean_dict = filter(lambda k: not pd.isna(przetworzone_dane[k]), przetworzone_dane)
+
+    # dict comprehension
+    clean_dict = {k: przetworzone_dane[k] for k in przetworzone_dane if not pd.isna(przetworzone_dane[k])}
+    return przetworzone_dane
+
