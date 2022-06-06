@@ -1,0 +1,69 @@
+import numpy as np
+import pandas as pd
+from numpy import nan
+from math import isnan
+
+def read_data(source_filename: str) -> dict:
+    # pweek;"obs";"participant";"week";"day";"beep";"value.timeNotification";"value.time";"value.timeCompleted";"ESM_DynaMORE_moodItem1";"ESM_DynaMORE_moodItem2";"ESM_DynaMORE_moodItem3";"ESM_DynaMORE_moodItem4";"ESM_DynaMORE_moodItem5";"ESM_DynaMORE_moodItem6";"ESM_DynaMORE_moodItem7";"ESM_DynaMORE_moodItem8";"ESM_DynaMORE_moodItem9";"ESM_DynaMORE_moodItem10";"ESM_DynaMORE_moodItem11";"ESM_DynaMORE_moodItem12";"ESM_DynaMORE_moodItem13";"ESM_DynaMORE_virtualSocialItem1";"ESM_DynaMORE_virtualSocialItem1branchAloneItem1";"ESM_DynaMORE_virtualSocialItem1branchAloneItem2";"ESM_DynaMORE_virtualSocialItem1branchAloneItem3";"ESM_DynaMORE_socialItem1";"ESM_DynaMORE_socialItem1branchAloneItem1";"ESM_DynaMORE_socialItem1branchAloneItem2";"ESM_DynaMORE_socialItem1branchAloneItem3";"ESM_DynaMORE_physicalContextAndActivityItem1";"ESM_DynaMORE_physicalContextAndActivityItem2";"ESM_DynaMORE_physicalContextAndActivityItem3";"ESM_DynaMORE_physicalContextAndActivityItem1BranchItem1";"ESM_DynaMORE_eventAppraisalItem1";"ESM_DynaMORE_eventAppraisalItem2";"ESM_DynaMORE_substanceUseItem1";"ESM_DynaMORE_anticipationOfPleasureItem1";"ESM_DynaMORE_anticipationOfPleasureItem2";"ESM_DynaMORE_virtualSocialItem1branchNotAloneItem1";"ESM_DynaMORE_virtualSocialItem1branchNotAloneItem2";"ESM_DynaMORE_virtualSocialItem1branchNotAloneItem3";"ESM_DynaMORE_virtualSocialItem1branchNotAloneItem4";"ESM_DynaMORE_socialItem1branchNotAloneItem1";"ESM_DynaMORE_socialItem1branchNotAloneItem2";"ESM_DynaMORE_socialItem1branchNotAloneItem3";"ESM_DynaMORE_socialItem1branchNotAloneItem4";"ESM_DynaMORE_substanceUseItem1branchYes"
+    with open(source_filename, 'r', errors="ignore", encoding="utf-8") as plik:
+        DynaMOBS_EMA_raw_warsaw = plik.readlines()[1:]
+    przetworzone_dane = {}
+    for wiersz in DynaMOBS_EMA_raw_warsaw:
+        wiersz = wiersz.strip().split(';')
+        for pozycja in range(len(wiersz)):
+            if wiersz[pozycja] == "NA":
+                wiersz[pozycja] = nan
+            else:
+                if pozycja == 1 or pozycja == 4 or pozycja == 5 or (pozycja > 8 and pozycja < 23):
+                    wiersz[pozycja] = int(wiersz[pozycja])
+                    # print(wiersz[pozycja])
+                elif pozycja == 2 or pozycja == 3:
+                    wiersz[pozycja] = int(wiersz[pozycja].replace('"', ''))
+                    # print(wiersz[pozycja])
+                # else:
+                #     wiersz[pozycja] = float(wiersz[pozycja])
+        # Grupowanie
+        # identyfikator = wiersz[2] - 15000
+        identyfikator = wiersz[0].replace('"', '')
+        if identyfikator in przetworzone_dane:
+            przetworzone_dane[identyfikator]["mood"]["mood1_cheerful"].append(wiersz[9])
+            przetworzone_dane[identyfikator]["mood"]["mood2_irritated"].append(wiersz[10])
+            przetworzone_dane[identyfikator]["mood"]["mood3_anxious"].append(wiersz[11])
+            przetworzone_dane[identyfikator]["mood"]["mood4_satisfied"].append(wiersz[12])
+            przetworzone_dane[identyfikator]["mood"]["mood5_insecure"].append(wiersz[13])
+            przetworzone_dane[identyfikator]["mood"]["mood6_relaxed"].append(wiersz[14])
+            przetworzone_dane[identyfikator]["mood"]["mood7_sad"].append(wiersz[15])
+            przetworzone_dane[identyfikator]["mood"]["mood8_stressed"].append(wiersz[16])
+            przetworzone_dane[identyfikator]["mood"]["mood9_restless"].append(wiersz[17])
+            przetworzone_dane[identyfikator]["mood"]["mood10_tired"].append(wiersz[18])
+            przetworzone_dane[identyfikator]["mood"]["mood11_atease"].append(wiersz[19])
+            przetworzone_dane[identyfikator]["mood"]["mood12_thoughtsout"].append(wiersz[20])
+            przetworzone_dane[identyfikator]["mood"]["mood13_concentrate"].append(wiersz[21])
+        else:
+            przetworzone_dane[identyfikator] = {
+                "subject_id": wiersz[0].replace('"', ''),
+                # "observation_nr": int(wiersz[1].replace('"', '')),
+                "participant": wiersz[2],
+                "week_nr": wiersz[3],
+                "mood": {"mood1_cheerful": [wiersz[9]],
+                            "mood2_irritated": [wiersz[10]],
+                            "mood3_anxious": [wiersz[11]],
+                            "mood4_satisfied": [wiersz[12]],
+                            "mood5_insecure": [wiersz[13]],
+                            "mood6_relaxed": [wiersz[14]],
+                            "mood7_sad": [wiersz[15]],
+                            "mood8_stressed": [wiersz[16]],
+                            "mood9_restless": [wiersz[17]],
+                            "mood10_tired": [wiersz[18]],
+                            "mood11_atease": [wiersz[19]],
+                            "mood12_thoughtsout": [wiersz[20]],
+                            "mood13_concentrate": [wiersz[21]]}
+            }
+            #print(przetworzone_dane)
+    # functional
+    clean_dict = filter(lambda k: not pd.isna(przetworzone_dane[k]), przetworzone_dane)
+
+    # dict comprehension
+    clean_dict = {k: przetworzone_dane[k] for k in przetworzone_dane if not pd.isna(przetworzone_dane[k])}
+    return przetworzone_dane
+
