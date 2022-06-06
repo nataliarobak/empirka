@@ -1,0 +1,113 @@
+from read_data import *
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+sciezka = "/Users/nataliarobak/Desktop/Różne/Dynamore/DynaMOBS_EMA_raw_warsaw.csv"
+dane = read_data(sciezka)
+
+
+def srednie(dataset: dict) -> dict:
+    srednie_itemow = {}
+    # os_week to cala linijka typu 15023w2: {...}
+    for os_week in dataset.values():
+        subject_id = os_week["subject_id"]
+        identyfikator = int(subject_id.split("w")[0].replace('"', ''))
+        week = int(subject_id.split("w")[1].replace('"', ''))
+        # print(identyfikator, week, "w{:d}mood".format(week))
+        array_cheerful = np.array(os_week["mood"]["mood1_cheerful"])
+        array_irritated = np.array(os_week["mood"]["mood2_irritated"])
+        array_anxious = np.array(os_week["mood"]["mood3_anxious"])
+        array_satisfied = np.array(os_week["mood"]["mood4_satisfied"])
+        array_insecure = np.array(os_week["mood"]["mood5_insecure"])
+        array_relaxed = np.array(os_week["mood"]["mood6_relaxed"])
+        array_sad = np.array(os_week["mood"]["mood7_sad"])
+        array_stressed = np.array(os_week["mood"]["mood8_stressed"])
+        array_restless = np.array(os_week["mood"]["mood9_restless"])
+        array_tired = np.array(os_week["mood"]["mood10_tired"])
+        array_atease = np.array(os_week["mood"]["mood11_atease"])
+        array_thoughtsout = np.array(os_week["mood"]["mood12_thoughtsout"])
+        array_concentrate = np.array(os_week["mood"]["mood13_concentrate"])
+        # print(array_stressed)
+        if identyfikator in srednie_itemow:
+            srednie_itemow[identyfikator].update({
+                "w{:d}mood1".format(week): np.nanmean(array_cheerful),
+                "w{:d}mood2".format(week): np.nanmean(array_irritated),
+                "w{:d}mood3".format(week): np.nanmean(array_anxious),
+                "w{:d}mood4".format(week): np.nanmean(array_satisfied),
+                "w{:d}mood5".format(week): np.nanmean(array_insecure),
+                "w{:d}mood6".format(week): np.nanmean(array_relaxed),
+                "w{:d}mood7".format(week): np.nanmean(array_sad),
+                "w{:d}mood8".format(week): np.nanmean(array_stressed),
+                "w{:d}mood9".format(week): np.nanmean(array_restless),
+                "w{:d}mood10".format(week): np.nanmean(array_tired),
+                "w{:d}mood11".format(week): np.nanmean(array_atease),
+                "w{:d}mood12".format(week): np.nanmean(array_thoughtsout),
+                "w{:d}mood13".format(week): np.nanmean(array_concentrate),
+                "w{:d}PA".format(week): (np.nanmean(array_cheerful) + np.nanmean(array_satisfied) + np.nanmean(array_relaxed) + np.nanmean(array_atease))/4,
+                "w{:d}NA".format(week): (np.nanmean(array_irritated) + np.nanmean(array_anxious) + np.nanmean(array_insecure) + np.nanmean(array_sad) + np.nanmean(array_stressed))/5
+            })
+        else:
+            srednie_itemow[identyfikator] = {
+                "w{:d}mood1".format(week): np.nanmean(array_cheerful),
+                "w{:d}mood2".format(week): np.nanmean(array_irritated),
+                "w{:d}mood3".format(week): np.nanmean(array_anxious),
+                "w{:d}mood4".format(week): np.nanmean(array_satisfied),
+                "w{:d}mood5".format(week): np.nanmean(array_insecure),
+                "w{:d}mood6".format(week): np.nanmean(array_relaxed),
+                "w{:d}mood7".format(week): np.nanmean(array_sad),
+                "w{:d}mood8".format(week): np.nanmean(array_stressed),
+                "w{:d}mood9".format(week): np.nanmean(array_restless),
+                "w{:d}mood10".format(week): np.nanmean(array_tired),
+                "w{:d}mood11".format(week): np.nanmean(array_atease),
+                "w{:d}mood12".format(week): np.nanmean(array_thoughtsout),
+                "w{:d}mood13".format(week): np.nanmean(array_concentrate),
+                "w{:d}PA".format(week): (np.nanmean(array_cheerful) + np.nanmean(array_satisfied) + np.nanmean(
+                    array_relaxed) + np.nanmean(array_atease)) / 4,
+                "w{:d}NA".format(week): (np.nanmean(array_irritated) + np.nanmean(array_anxious) + np.nanmean(
+                    array_insecure) + np.nanmean(array_sad) + np.nanmean(array_stressed)) / 5
+            }
+
+            # srednie_itemow[identyfikator].update(**d1)
+        # print(srednie_itemow[identyfikator])
+    return srednie_itemow
+
+
+def splitSerToArr(ser):
+    return [ser.index, ser.as_matrix()]
+
+
+def wykresy(dane):
+    x = np.arange(1, 7)
+    badani = [15001, 15002, 15003, 15006, 15007, 15008, 15009, 15010, 15011, 15013, 15017, 15018, 15019, 15020, 15021, 15023, 15024, 15025,
+              15028, 15031, 15032, 15033, 15034, 15035, 15036, 15037, 15038, 15039, 15040, 15041, 15042, 15043, 15044, 15046, 15047, 15048,
+              15049, 15050, 15052, 15053, 15055, 15056, 15057, 15058, 15059, 15060, 15061, 15062, 15064, 15065, 15068, 15069, 15071]
+
+    y = []
+    # print(dane[15010]["w3PA"])
+    # for i in range(1,7):
+    #     print(dane[15071]["w{:d}PA".format(i)])
+
+    for j in badani:
+        if j in [15002, 15003, 15056, 15060]:
+            y = [dane[j]["w1PA"], dane[j]["w2PA"], dane[j]["w3PA"], dane[j]["w4PA"], dane[j]["w5PA"], nan]
+        if j in [15008, 15068]:
+            y = [dane[j]["w1PA"], dane[j]["w2PA"], dane[j]["w3PA"], nan, dane[j]["w5PA"], dane[j]["w6PA"]]
+        if j in [15068]:
+            y = [dane[j]["w1PA"], dane[j]["w2PA"], dane[j]["w3PA"], nan, nan, dane[j]["w6PA"]]
+        if j in [15009, 15010, 15011, 15013, 15017, 15020, 15023, 15025, 15031, 15035, 15036, 15037, 15046, 15047, 15050, 15071]:
+            y = [dane[j]["w1PA"], dane[j]["w2PA"], dane[j]["w3PA"], dane[j]["w4PA"], nan, dane[j]["w6PA"]]
+        if j in [15024]:
+            y = [dane[j]["w1PA"], dane[j]["w2PA"], nan, dane[j]["w4PA"], dane[j]["w5PA"], dane[j]["w6PA"]]
+        if j in [15058, 15059]:
+            y = [nan, dane[j]["w2PA"], dane[j]["w3PA"], dane[j]["w4PA"], dane[j]["w5PA"], dane[j]["w6PA"]]
+        if j in [15061]:
+            y = [nan, dane[j]["w2PA"], dane[j]["w3PA"], dane[j]["w4PA"], nan, dane[j]["w6PA"]]
+        if j in [15064]:
+            y = [nan, dane[j]["w2PA"], dane[j]["w3PA"], nan, nan, dane[j]["w6PA"]]
+        else:
+            y = [dane[j]["w1PA"], dane[j]["w2PA"], dane[j]["w3PA"], dane[j]["w4PA"], dane[j]["w5PA"], dane[j]["w6PA"]]
+        # s = pd.Series(y)
+        print(y, "\n")
+        plt.plot(x, y, linestyle='-', marker='o')
+    plt.show()
